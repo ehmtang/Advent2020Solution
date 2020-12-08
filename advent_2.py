@@ -14,33 +14,36 @@ import statistics as st
 import matplotlib.pyplot as plt
 import scipy
 from scipy import optimize
-import tkinter as tk
-from tkinter import *
-from tkinter import filedialog
-plt.style.use('ggplot')
 
-#%% Open dialog box to select files to be analysed
 
-root = tk.Tk()
-root.filename =  filedialog.askopenfilename(initialdir = "/",
-                                              title = "Advent 2",
-                                              filetypes = (("csv files","*.csv"),("all files","*.*")))
-files = root.filename
-button_exit = Button(root,  
-                      text = "Exit", 
-                      command = root.destroy)
 
-button_exit.grid(column = 1, row = 1)
+# Get current working directory
+dirname = os.path.dirname(os.path.abspath(__file__))
+advent_2 = dirname + r'\advent_2.txt'
 
-root.mainloop()
+# Get directory of 'data' to be imported
+F = pd.read_csv(advent_2,
+                header=None,
+                delimiter=' ')
 
-def tolerance():
-    lower_tolerance = #first number
-    upper_tolerance = #second number
-    character = #character to be parsed
-    count = character in StringVar
-    if count between lower and upper tolerance :
-        True
-    elif
-        FALSE
-        
+# new data frame with split value columns 
+new = F[0].str.split('-', n = 1, expand = True) 
+  
+# making separate first name column from new data frame 
+F['LowerTol']= new[0].astype(int)
+  
+# making separate last name column from new data frame 
+F['UpperTol']= new[1].astype(int) 
+  
+# Dropping old Name columns 
+F.drop(columns =[0], inplace = True)
+
+F[1] = F[1].str.replace(':', '').astype(str)
+
+
+#%%
+
+condion =[]
+for i in range(len(F)):
+    counter = F[2][i].count(str(F[1][i]))
+    if counter >= F['LowerTol'] && counter <= F['UpperTol']
