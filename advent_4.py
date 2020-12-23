@@ -2,184 +2,129 @@
 """
 Created on Wed Dec  9 15:51:25 2020
 
+Credit from Joey deVilla
+https://www.globalnerdy.com/2020/12/06/my-solution-to-advent-of-code-2020s-day-4-challenge-in-python/
+
+
+refer to why not to iterate over pandas 
+https://stackoverflow.com/questions/16476924/how-to-iterate-over-rows-in-a-dataframe-in-pandas
+https://towardsdatascience.com/you-dont-always-have-to-loop-through-rows-in-pandas-22a970b347ac
+
 @author: et140552
 """
 # Import necessary packages
 import os
-import numpy as np
-import pandas as pd
-import math
-import statistics as st
-import matplotlib.pyplot as plt
-import scipy
-from scipy import optimize
-
-import ast
 
 # Get current working directory
 dirname = os.path.dirname(os.path.abspath(__file__))
 advent_4 = dirname + r'\advent_4.txt'
 
 
-#Line Formatter
-
-test = """ecl:gry pid:860033327 eyr:2020 hcl:#fffffd
-byr:1937 iyr:2017 cid:147 hgt:183cm
-
-iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884
-hcl:#cfa07d byr:1929
-
-hcl:#ae17e1 iyr:2013
-eyr:2024
-ecl:brn pid:760753108 byr:1931
-hgt:179cm
-
-hcl:#cfa07d eyr:2025 pid:166559648
-iyr:2011 ecl:brn hgt:59in"""
-
-
-
-
-
-
-RUN_TEST = False
-TEST_SOLUTION = 2
-TEST_INPUT_FILE = 'test_input_day_04.txt'
-INPUT_FILE = 'input_day_04.txt'
-
-PASSPORT_FIELDS = {
-    'byr',
-    'iyr',
-    'eyr',
-    'hgt',
-    'hcl',
-    'ecl',
-    'pid',
-    'cid'
-}
-
-REQUIRED_PP_FIELDS = PASSPORT_FIELDS.difference({'cid'})
-
-
-ARGS = [REQUIRED_PP_FIELDS, ]
-
 with open(advent_4) as f:
     data = f.read()
     
+split_input = data.split("\n\n")
+
+split_input_2 = [string.replace("\n", " ") for string in split_input]
+
+split_input_3 = [string.split() for string in split_input_2]
+
+def convert_to_dictionary(password_list):
+    dictionary = {}
     
-# Separate the each 
-passports_lines = data.split("\n\n")
-fields_lines = []
-
-for i in range(len(passports_lines)):
-    temp = passports_lines[i].replace("\n", " ")
-    fields_lines.append(temp)
-
-for i in range(len(fields_lines)):
-    fields_lines[i]=fields_lines[i].replace(" ", "', ")
-    fields_lines[i]=fields_lines[i].replace(":", "':'")
-
+    for item in password_list:
+        item_parts = item.split(":")
+        key = item_parts[0]
+        value = item_parts[1]
+        dictionary[key] = value
         
-        
-        
-        
-        
-        
-        
-        
+    return dictionary
 
-#%%
+passports = [convert_to_dictionary(item) for item in split_input_3]
 
-print(blah[0])
-thisdict = {blah[0]}
-
-# %%
-def valid_passports(input):
-    """
-    Function to count valid passports, Advent of Code Day 4 Challenge!
-    """
-
-    import ast
-
-    prelim = input.split("\n\n")
-
-    def clean(trash):
-        """
-        Cleanup entries on list for unwanted characters.
-        """
-
-        trash = trash.replace("\n", " ")
-        trash = trash.replace(":", "':'")
-        trash = trash.replace(" ", "', '")
-
-        return trash
-
-    prelim2 = [clean(x) for x in prelim]
-
-    insert_quotation = lambda string: string + "'}"
-
-    insert_curly = lambda string: "{'" + string
-
-    prelim3 = [insert_quotation(x) for x in prelim2]
-
-    prelim4 = [insert_curly(x) for x in prelim3]
-    print(prelim4)
-
-    df = pd.DataFrame([ast.literal_eval(x) for x in prelim4])
-
-    df = df.drop(columns=["cid"])
-
-    return df.dropna()
-
-
-with open(advent_4) as f:
-    part1 = f.read()
-
-
-df = valid_passports(part1[:-1])
-
-df = df.astype({"byr": int, "eyr": int, "iyr": int})
-
-df = df[(1920 <= df.byr) & (df.byr <= 2002)]
-df = df[(2010 <= df.iyr) & (df.byr <= 2020)]
-df = df[(2020 <= df.eyr) & (df.eyr <= 2030)]
-
-for x in df.hgt:
-    #contain cm
-    x = 
+def is_valid_passport(passport):
+    has_birth_year = "byr" in passport
+    has_issue_year = "iyr" in passport
+    has_expiration_year = "eyr" in passport
+    has_height = "hgt" in passport
+    has_hair_color = "hcl" in passport
+    has_eye_color = "ecl" in passport
+    has_passport_id = "pid" in passport
+    has_country_id = "cid" in passport
     
-# check if "cm" or "in" is in list
-# back two [:-2] create new list as int
-    # check new list is between 150 and 193 cm
-    # check new list is between 59 and 76 in
+    return (
+        has_birth_year and
+        has_issue_year and
+        has_expiration_year and
+        has_height and
+        has_hair_color and
+        has_eye_color and
+        has_passport_id
+    )
 
-# check '#' is == [0] true  else fail
-# check character 0-9 or a-f
-# ecl in list [amb blu brn gry grn hzl oth]
-# pid is len(x) == 9 and is a number
-# first character is 0
+valid_passports = [passport for passport in passports if is_valid_passport(passport)]
+print(len(valid_passports))
 
+def has_valid_values(passport):
+    has_valid_birth_year = 1920 <= int(passport["byr"]) <= 2002
+    has_valid_issue_year = 2010 <= int(passport["iyr"]) <= 2020
+    has_valid_expiration_year = 2020 <= int(passport["eyr"]) <= 2030
+    
+    has_valid_height = False
+    height_units = passport["hgt"][-2:]
+    if height_units == "cm":
+        height = int(passport["hgt"][:-2])
+        has_valid_height = 150 <= height <= 193
+    elif height_units == "in":
+        height = int(passport["hgt"][:-2])
+        has_valid_height = 59 <= height <= 76
+        
+    def is_valid_hex_string(string):
+        test_value = string.lower()
+        is_valid = True
+ 
+        for character in string:
+            if character not in "0123456789abcdef":
+                is_valid = False
+                break
+ 
+        return is_valid
+        
+    has_valid_hair_color = False
+    if len(passport["hcl"]) == 7:
+        digits = passport["hcl"][1:]
+        has_valid_hair_color = is_valid_hex_string(digits)
+            
+    has_valid_eye_color = passport["ecl"] in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
+    
+    def is_valid_passport_id(value):
+        is_valid = False
+        
+        if len(value) == 9:
+            is_valid = True
+ 
+            for character in value:
+                if character not in "0123456789":
+                    is_valid = False
+                    break
+        
+        return is_valid
+    
+    has_valid_passport_id = is_valid_passport_id(passport["pid"])
+                
+        
+    return (
+        has_valid_birth_year and
+        has_valid_issue_year and
+        has_valid_expiration_year and
+        has_valid_height and
+        has_valid_hair_color and
+        has_valid_eye_color and
+        has_valid_passport_id
+    )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+truly_valid_passports = [passport for passport in valid_passports if has_valid_values(passport)]
+print(len(truly_valid_passports))
 
 
 
